@@ -79,8 +79,6 @@ async function carregarEventos(){
     }
 }
 
-
-
 window.onload = () => {
     carregarEventos();
 };
