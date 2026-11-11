@@ -16,7 +16,10 @@ function fecharModalEvento() {
     form.reset()
 }
 
-function abrirModalDeletar() {
+let idCardParaExcluir = null
+
+function abrirModalDeletar(idCard) {
+    idCardParaExcluir = idCard
     const modal = document.querySelector("#modalDeletar")
     modal.classList.add("flex")
     modal.classList.remove("hidden")
@@ -73,7 +76,7 @@ async function carregarEventos(){
                     </div>
                     <div class="flex flex-col gap-4 md:flex-row">
                         <button onclick="abrirModalEvento('Editar Evento')" class="cursor-pointer"><box-icon type='solid' name='edit' color="#ffffff"></box-icon></button>
-                        <button onclick="abrirModalDeletar()" class="cursor-pointer"><box-icon name='trash' color="#ffffff" ></box-icon></button>
+                        <button onclick="abrirModalDeletar('${evento.id}')" class="cursor-pointer"><box-icon name='trash' color="#ffffff" ></box-icon></button>
                     </div>
                 </div>
             `
@@ -91,14 +94,14 @@ async function salvarNovoEvento() {
         date: document.querySelector("#date").value,
         start_time: document.querySelector("#start_time").value,
         end_time: document.querySelector("#end_time").value
-    };
+    }
 
     try {
         const resposta = await fetch("https://mistsamba-api.onrender.com/eventos", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dados)
-        });
+        })
 
         if(resposta.ok){
             fecharModalEvento()
@@ -106,11 +109,27 @@ async function salvarNovoEvento() {
         }
 
     } catch (erro) {
-        console.error("Erro ao criar:", erro);
+        console.error("Erro ao criar:", erro)
+    }
+}
+
+async function excluirEvento() {
+    
+    try {
+        const resposta = await fetch(`https://mistsamba-api.onrender.com/eventos/${idCardParaExcluir}`, {
+            method: "DELETE"
+        })
+
+        if (resposta.ok) {
+            fecharModalDeletar()
+            carregarEventos()   
+        }
+    } catch (erro) {
+        console.error("Erro ao excluir:", erro)
     }
 }
 
 
 window.onload = () => {
-    carregarEventos();
+    carregarEventos()
 };
