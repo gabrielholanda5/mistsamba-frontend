@@ -1,11 +1,31 @@
-function abrirModalEvento(titulo) {
+let idCardParaEditar = null
+
+function abrirModalEvento(titulo, evento = null) {
+    
     const modal = document.querySelector("#modalEvento")
     const tituloModal = modal.querySelector("h3")
     tituloModal.textContent = titulo
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
+    modal.classList.remove("hidden")
+    modal.classList.add("flex")
+
+
     const form = document.querySelector("#formEvento")
-    form.reset()
+    const btnSalvar = document.querySelector("#btnSalvar")
+    
+    if (evento) {
+        idCardParaEditar = evento.id
+        document.querySelector("#title").value = evento.title
+        document.querySelector("#location").value = evento.location || ""
+        document.querySelector("#date").value = evento.date
+        document.querySelector("#start_time").value = evento.start_time
+        document.querySelector("#end_time").value = evento.end_time
+
+        btnSalvar.setAttribute("onclick", "editarEvento()")
+    } else {
+        idCardParaEditar = null
+        form.reset()
+        btnSalvar.setAttribute("onclick", "salvarNovoEvento()")
+    }
 }
 
 function fecharModalEvento() {
@@ -75,7 +95,7 @@ async function carregarEventos(){
                         </div>
                     </div>
                     <div class="flex flex-col gap-4 md:flex-row">
-                        <button onclick="abrirModalEvento('Editar Evento')" class="cursor-pointer"><box-icon type='solid' name='edit' color="#ffffff"></box-icon></button>
+                        <button onclick='abrirModalEvento("Editar Evento", ${JSON.stringify(evento)})' class="cursor-pointer"><box-icon type='solid' name='edit' color="#ffffff"></box-icon></button>
                         <button onclick="abrirModalDeletar('${evento.id}')" class="cursor-pointer"><box-icon name='trash' color="#ffffff" ></box-icon></button>
                     </div>
                 </div>
@@ -113,6 +133,31 @@ async function salvarNovoEvento() {
     }
 }
 
+async function editarEvento() {
+    const dadosAtualizados = {
+        title: document.querySelector("#title").value,
+        location: document.querySelector("#location").value,
+        date: document.querySelector("#date").value,
+        start_time: document.querySelector("#start_time").value,
+        end_time: document.querySelector("#end_time").value
+    }
+
+    try {
+        const resposta = await fetch(`https://mistsamba-api.onrender.com/eventos/${idCardParaEditar}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dadosAtualizados)
+        })
+
+        if (resposta.ok) {
+            fecharModalEvento();
+            carregarEventos(); 
+        }
+    } catch (erro) {
+        console.error("Erro ao atualizar o evento:", erro)
+    }
+}
+
 async function excluirEvento() {
     
     try {
@@ -132,4 +177,4 @@ async function excluirEvento() {
 
 window.onload = () => {
     carregarEventos()
-};
+}
