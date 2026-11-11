@@ -4,12 +4,16 @@ function abrirModalEvento(titulo) {
     tituloModal.textContent = titulo
     modal.classList.remove("hidden");
     modal.classList.add("flex");
+    const form = document.querySelector("#formEvento")
+    form.reset()
 }
 
 function fecharModalEvento() {
     const modal = document.querySelector("#modalEvento")
     modal.classList.add("hidden")
     modal.classList.remove("flex")
+    const form = document.querySelector("#formEvento")
+    form.reset()
 }
 
 function abrirModalDeletar() {
@@ -78,6 +82,34 @@ async function carregarEventos(){
         console.error("Erro ao carregar os eventos do banco:", erro)
     }
 }
+
+async function salvarNovoEvento() {
+    
+    const dados = {
+        title: document.querySelector("#title").value,
+        location: document.querySelector("#location").value,
+        date: document.querySelector("#date").value,
+        start_time: document.querySelector("#start_time").value,
+        end_time: document.querySelector("#end_time").value
+    };
+
+    try {
+        const resposta = await fetch("https://mistsamba-api.onrender.com/eventos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        if(resposta.ok){
+            fecharModalEvento()
+            carregarEventos()
+        }
+
+    } catch (erro) {
+        console.error("Erro ao criar:", erro);
+    }
+}
+
 
 window.onload = () => {
     carregarEventos();
